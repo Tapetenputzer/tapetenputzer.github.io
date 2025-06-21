@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tapetenputzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            background: radial-gradient(ellipse at center, #0f0f23 0%, #000000 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00ff00;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 98px,
+                    rgba(0, 255, 0, 0.03) 100px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 98px,
+                    rgba(0, 255, 0, 0.03) 100px
+                );
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 0, 0.05) 2px,
+                rgba(0, 255, 0, 0.05) 4px
+            );
+            pointer-events: none;
+            animation: scanlines 0.1s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        .container {
+            background: rgba(15, 15, 35, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.3),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 0, 0.5),
+                inset 0 0 30px rgba(0, 255, 0, 0.15);
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #001100, #003300);
+            border: 2px solid #00ff00;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #00ff00;
+            font-weight: 300;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.4),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+            font-family: 'JetBrains Mono', monospace;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .profile-img:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 0, 0.6),
+                inset 0 0 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .profile-img.clicked {
+            animation: profileGlitch 0.5s ease;
+        }
+
+        @keyframes profileGlitch {
+            0% { transform: translate(0); }
+            10% { transform: translate(-2px, 2px); }
+            20% { transform: translate(2px, -2px); }
+            30% { transform: translate(-2px, -2px); }
+            40% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, 2px); }
+            60% { transform: translate(2px, -2px); }
+            70% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+            90% { transform: translate(-2px, 2px); }
+            100% { transform: translate(0); }
+        }
+
+        .profile-img::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 30px;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            font-family: 'JetBrains Mono', monospace;
+            position: relative;
+        }
+
+        .typing-text {
+            display: inline-block;
+            position: relative;
+        }
+
+        .typing-text::after {
+            content: '_';
+            display: inline-block;
+            color: #00ff00;
+            animation: blink 1s infinite;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .terminal {
+            width: 100%;
+            max-width: 400px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #00ff00;
+            padding: 10px;
+            overflow: hidden;
+            margin: 0 auto 30px;
+        }
+
+        .terminal-header {
+            color: #00aa00;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 5px;
+        }
+
+        .terminal-content {
+            height: 150px;
+            overflow: hidden;
+            line-height: 1.2;
+        }
+
+        .terminal-line {
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+            white-space: nowrap;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #00cc00;
+            margin-bottom: 30px;
+            font-weight: 400;
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 0 0 5px rgba(0, 204, 0, 0.5);
+        }
+
+        .description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #00aa00;
+            margin-bottom: 40px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 17, 0, 0.8);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 20px;
+            position: relative;
+        }
+
+        .social-link:hover {
+            transform: translateY(-3px);
+            background: rgba(0, 255, 0, 0.1);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.6),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+
+        .email-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+        }
+
+        .email-link:hover {
+            background: rgba(0, 255, 0, 0.1);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.6),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 30px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .social-links {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-img" id="profileImg">
+            TP
+        </div>
+        
+        <h1><span class="typing-text" id="typingText"></span></h1>
+        
+        <div class="terminal">
+            <div class="terminal-header">root@system:~$</div>
+            <div class="terminal-content" id="terminal"></div>
+        </div>
+        
+        <div class="social-links">
+            <a href="https://github.com/tapetenputzer" class="social-link" target="_blank" aria-label="GitHub">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <script>
+       
+        const text = "Tapetenputzer";
+        const typingElement = document.getElementById('typingText');
+        let i = 0;
+
+        function typeWriter() {
+            if (i < text.length) {
+                typingElement.textContent += text.charAt(i);
+                i++;
+                setTimeout(typeWriter, 150);
+            }
+        }
+
+        
+        setTimeout(typeWriter, 1000);
+
+        
+        const profileImg = document.getElementById('profileImg');
+        profileImg.addEventListener('click', function() {
+            this.classList.add('clicked');
+            setTimeout(() => {
+                this.classList.remove('clicked');
+            }, 500);
+        });
+
+       
+        const terminal = document.getElementById('terminal');
+        const matrixChars = "0123456789ABCDEF";
+        const commands = [
+            "Scanning network interfaces...",
+            "eth0: 192.168.1.101",
+            "wlan0: connected",
+            "Starting vulnerability scan...",
+            "Port 22: SSH [OPEN]",
+            "Port 80: HTTP [OPEN]", 
+            "Port 443: HTTPS [OPEN]",
+            "Analyzing SSL certificates...",
+            "Certificate valid until 2025-12-31",
+            "Running NMAP aggressive scan...",
+            "Host discovery completed",
+            "Service detection running...",
+            "OS fingerprinting active...",
+            "Payload injection testing...",
+            "Buffer overflow attempt: FAILED",
+            "SQL injection test: SECURE",
+            "XSS vulnerability: NOT FOUND",
+            "System appears hardened",
+            "Generating penetration report...",
+            "Assessment complete: LOW RISK"
+        ];
+
+        let commandIndex = 0;
+        let charIndex = 0;
+
+        function addTerminalLine() {
+            if (commandIndex >= commands.length) {
+                commandIndex = 0;
+                terminal.innerHTML = '';
+            }
+
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.style.animationDelay = '0s';
+            
+            const command = commands[commandIndex];
+            let displayText = '';
+            
+            function typeCommand() {
+                if (charIndex < command.length) {
+                    displayText += command.charAt(charIndex);
+                    line.textContent = '> ' + displayText;
+                    charIndex++;
+                    setTimeout(typeCommand, 50);
+                } else {
+                    charIndex = 0;
+                    commandIndex++;
+                    setTimeout(addTerminalLine, 1500);
+                }
+            }
+
+            terminal.appendChild(line);
+            
+           
+            while (terminal.children.length > 10) {
+                terminal.removeChild(terminal.firstChild);
+            }
+            
+            setTimeout(typeCommand, 100);
+        }
+
+      
+        setTimeout(addTerminalLine, 3000);
+    </script>
+</body>
+</html>
